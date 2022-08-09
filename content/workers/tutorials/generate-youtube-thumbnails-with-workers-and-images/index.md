@@ -1,5 +1,5 @@
 ---
-updated: 2022-08-04
+updated: 2022-08-09
 difficulty: Intermediate
 content_type: 📝 Tutorial
 pcx_content_type: tutorial
@@ -211,6 +211,43 @@ async fn handle_slash(text: String) -> Result<Response> {
 }
 ```
 
+Next, We'll rewrite the Router function to call the `handle_slash` when a query is passed in the url, otherwise return the 'Hello Worker!' as the response.
+
+```rs
+---
+filename: lib.rs
+highlight: [11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+---
+use text_to_png::{TextPng, TextRenderer};
+use worker::*;
+mod utils;
+
+#[event(fetch)]
+pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Response> {
+   // Optionally, get more helpful error messages written to the console in the case of a panic.
+   utils::set_panic_hook();
+
+  let router = Router::new();
+    router
+      .get_async("/", |req, _| async move {
+        if let Some(text) = req.url()?.query() {
+          handle_slash(text.into()).await
+        } else {
+          handle_slash("Hello Worker!".into()).await
+        }
+      })
+      .run(req, env)
+        .await
+}
+
+async fn handle_slash(text: String) -> Result<Response> {
+  let renderer = TextRenderer::try_new_with_ttf_font_data(include_bytes!("../assets/Inter-Bold.ttf"))
+    .expect("Example font is definitely loadable");
+
+  let text_png: TextPng = renderer.render_text_to_png_data(text.replace("+", " "), 60, "003682").unwrap();
+}
+```
+
 Here, we're setting the headers to `content-type: 'image/png'` so the text displayed on the browser is a png image.
 
 ```rs
@@ -228,10 +265,16 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
    utils::set_panic_hook();
 
    let router = Router::new();
-   router
-       .get("/", |_, _| Response::ok("Hello from Workers!"))
-       .run(req, env)
-       .await
+    router
+      .get_async("/", |req, _| async move {
+        if let Some(text) = req.url()?.query() {
+          handle_slash(text.into()).await
+        } else {
+          handle_slash("Hello Worker!".into()).await
+        }
+      })
+      .run(req, env)
+        .await
 }
 
 async fn handle_slash(text: String) -> Result<Response> {
