@@ -253,7 +253,7 @@ Here, we're setting the headers to `content-type: 'image/png'` so the text displ
 ```rs
 ---
 filename: lib.rs
-highlight: [23, 24, 25, 26]
+highlight: [29, 30, 31, 32]
 ---
 use text_to_png::{TextPng, TextRenderer};
 use worker::*;
