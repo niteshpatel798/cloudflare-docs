@@ -14,6 +14,7 @@ Cloudflare caches static content based on the following factors:
 
 *   Cache level set at a zone or [page rule](/cache/how-to/create-page-rules/)
 *   File extension
+*   Hackerone test
 *   Presence of query strings
 *   Origin cache-control headers
 *   Origin headers that indicate dynamic content
